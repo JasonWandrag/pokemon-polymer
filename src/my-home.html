@@ -1,0 +1,102 @@
+<!-- Load the Polymer.Element base class -->
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-home">
+    <!-- Defines the element's style and local DOM -->
+    <template>
+    <style include="shared-styles">
+    :host {
+        display: block;
+        padding: 16px;
+    }
+    .spinner{
+        text-align: center;
+    }
+    paper-spinner{
+        width: 50px;
+        height: 50px;
+        padding: 3%;
+    }
+    h2, paper-item{
+        text-transform: capitalize;
+    }
+    </style>
+    <div class="card">
+
+        <paper-input label="Search Pokemon" value="{{poke::input}}">
+            <iron-icon icon="icons:search" slot="prefix"></iron-icon>
+        </paper-input>
+        <paper-button raised on-tap="getMyPoke" class="primary">Submit</paper-button>
+        <p>[[responseError]]</p>
+    </div>
+
+    <template is="dom-if" if="{{loading}}">
+        <div class="spinner">
+
+        <paper-spinner active></paper-spinner>
+    </div>
+        </template>
+
+    <template is="dom-if" if="[[pokemon]]">
+        <div class="card">
+
+        <h2>{{pokemon.name}}</h2>
+    </div>
+        <div class="card">
+            <h4>Abilities:</h4>
+            <template is="dom-repeat" items="[[pokemon.abilities]]">
+                <paper-item>{{item.ability.name}}</paper-item>
+            </template>
+        </div>
+        <div class="card">
+            <h4>Type:</h4>
+            <template is="dom-repeat" items="[[pokemon.types]]">
+                <paper-item>{{item.type.name}}</paper-item>
+            </template>
+        </div>
+    </template>
+
+
+    <iron-ajax
+    id="requestPokes"
+    url="http://pokeapi.co/api/v2/pokemon/{{poke}}"
+    handle-as="json"
+    method="GET"
+    loading="{{loading}}"
+    on-response="handleResponse"
+    on-error="handleErrorResponse"
+    debounce-duration="300"></iron-ajax>
+</template>
+<script>
+// Your new element extends the Polymer.Element base class
+class MyHome extends Polymer.Element {
+    static get is() { return 'my-home'; }
+    static get properties() {
+        return{
+            pokemon : Array
+        }
+    }
+    getMyPoke(){
+        this.pokemon = null;
+        this.$.requestPokes.generateRequest();
+        this.responseError = "";
+    }
+    handleResponse(data){
+        this.pokemon = data.detail.response;
+    }
+    handleErrorResponse(event){
+        this.responseError = "There is no such Pokemon, please check your spelling and try again.";
+    }
+}
+//Now, register your new custom element so the browser can use it
+customElements.define(MyHome.is, MyHome);
+</script>
+</dom-module>
