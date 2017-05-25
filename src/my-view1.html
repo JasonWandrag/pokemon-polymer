@@ -62,10 +62,10 @@
 			</template>
 		</div>
 		<div class="por">
-			<!--<paper-button raised on-tap="battle1" id="battle1">Growl</paper-button>
+			<!--<paper-button raised on-tap="battle1" id="battle1">Growl</paper-button>-->
 			<paper-button raised on-tap="battle1" id="battle1">Tackle</paper-button>
-			<paper-button raised on-tap="battle1" id="battle1">Quick Attack</paper-button>-->
-			<paper-button raised on-tap="battle1" id="battle1">Ember</paper-button>
+			<paper-button raised on-tap="battle1" id="battle11" value="4">Quick Attack</paper-button>
+			<paper-button raised on-tap="battle1" id="battle111" value="7">Ember</paper-button>
 			<!--<template is="dom-repeat" items="[[pokemonO.moves]]">
 				{{item.move.name}} &nbsp;
 			</template>
@@ -80,10 +80,10 @@
 			</div>
 		</template>
 		
-			<!--<paper-button raised on-tap="battle2" id="battle2">Growl</paper-button>
-			<paper-button raised on-tap="battle2" id="battle2">Tackle</paper-button><br/>
-			<paper-button raised on-tap="battle2" id="battle2">Quick Attack</paper-button>-->
-			<paper-button raised on-tap="battle2" id="battle2">Lighting</paper-button>
+			<!--<paper-button raised on-tap="battle2" id="battle2">Growl</paper-button>-->
+			<paper-button raised on-tap="battle2" id="battle2">Tackle</paper-button>
+			<paper-button raised on-tap="battle2" id="battle22">Quick Attack</paper-button>
+			<paper-button raised on-tap="battle2" id="battle222">Lightning</paper-button>
 			<div class="pt">
 				<template is="dom-repeat" items="[[pokemonT]]">
 					<h4>{{pokemonT.name}}</h4>
@@ -198,15 +198,20 @@ class MyBattle extends Polymer.Element {
         this.$.requestCat.generateRequest();
     }
 	
-	battle1() {
-		this.myMessage = null;
+	battle1(oEvent) {
+		var pokemonName = this.getPokemon(1);
+		var btnDamage = this.getButtonDamage(oEvent);
+		var atkDamage = btnDamage[0];
+		var atkName = btnDamage[1];
+		this.myMessage = '';
+		this.myMessage += pokemonName + ' used ' + atkName +  '.  ';
 		this.damage1 = null;
 		var attack = this.pokemonO.stats[4].base_stat;
 		var level = 17;
-		var power = 75;
+		var atkPower = atkDamage;
 		var defence = this.pokemonT.stats[3].base_stat;
 		var mydamage1 =  0;
-		mydamage1 = this.calcDamage(attack, level, power, defence);
+		mydamage1 = this.calcDamage(attack, level, atkPower, defence);
 		
 		if (this.checkHealth(this.health2, mydamage1)) {
 			if(!this.isHit(2)){
@@ -220,15 +225,20 @@ class MyBattle extends Polymer.Element {
 			this.calcWinner(1);
 		}
 	}
-	battle2() {
-		this.myMessage = null;
+	battle2(oEvent) {
+		var pokemonName = this.getPokemon(2);
+		var btnDamage = this.getButtonDamage(oEvent);
+		var atkDamage = btnDamage[0];
+		var atkName = btnDamage[1];
+		this.myMessage = '';
+		this.myMessage += pokemonName + ' used ' + atkName + '.  ';
 		this.damage2 = null;
 		var attack = this.pokemonT.stats[4].base_stat;
 		var level = 16;
-		var power = 80;
+		var atkPower = atkDamage;
 		var defence = this.pokemonO.stats[3].base_stat;
 		var mydamage2 = 0;
-		mydamage2 = this.calcDamage(attack, level, power, defence);
+		mydamage2 = this.calcDamage(attack, level, atkPower, defence);
 		
 		if (this.checkHealth(this.health1, mydamage2)) {
 			if(!this.isHit(1)){
@@ -256,7 +266,11 @@ class MyBattle extends Polymer.Element {
 		}
 		this.theWinner = 'The Winner Is: ' + this.getPokemonName(pokemonName);  
 		this.$.battle1.disabled = true;
+		this.$.battle11.disabled = true;
+		this.$.battle111.disabled = true;
 		this.$.battle2.disabled = true;
+		this.$.battle22.disabled = true;
+		this.$.battle222.disabled = true;
 		this.damage1 = null;
 		this.damage2 = null;
 		this.myMessage = null;
@@ -270,11 +284,15 @@ class MyBattle extends Polymer.Element {
 		this.pokemonO = null;
 		this.pokemonT = null;
 		this.theWinner = null;
-		this.myMessage = null;
+		this.myMessage = '';
 		this.$.getPlayerOne.generateRequest(); 
 		this.$.getPlayerTwo.generateRequest(); 
 		this.$.battle1.disabled = false;
+		this.$.battle11.disabled = false;
+		this.$.battle111.disabled = false;
 		this.$.battle2.disabled = false;
+		this.$.battle22.disabled = false;
+		this.$.battle222.disabled = false;
 	}
 	isHit(id){
 		var  roll =  Math.floor((Math.random() * 10) + 1);
@@ -285,24 +303,40 @@ class MyBattle extends Polymer.Element {
 			pokemonName = this.pokemonT.name;
 		}
 		if(roll > 8){
-			this.myMessage = this.getPokemonName(pokemonName )+ ' evaded the attack.';
+			this.myMessage += this.getPokemonName(pokemonName )+ ' evaded the attack.';
 			if(id == 1){
 				this.$.battle1.disabled = false;
+				this.$.battle11.disabled = false;
+				this.$.battle111.disabled = false;
 				this.$.battle2.disabled = true;
+				this.$.battle22.disabled = true;
+				this.$.battle222.disabled = true;
 			}
 			if(id == 2){
 				this.$.battle1.disabled = true;
+				this.$.battle11.disabled = true;
+				this.$.battle111.disabled = true;
 				this.$.battle2.disabled = false;
+				this.$.battle22.disabled = false;
+				this.$.battle222.disabled = false;
 			}
 			return true;
 		}else{
 			if(id == 1){
 				this.$.battle1.disabled = false;
+				this.$.battle11.disabled = false;
+				this.$.battle111.disabled = false;
 				this.$.battle2.disabled = true;
+				this.$.battle22.disabled = true;
+				this.$.battle222.disabled = true;
 			}
 			if(id == 2){
 				this.$.battle1.disabled = true;
+				this.$.battle11.disabled = true;
+				this.$.battle111.disabled = true;
 				this.$.battle2.disabled = false;
+				this.$.battle22.disabled = false;
+				this.$.battle222.disabled = false;
 			}
 		}
 		return false;
@@ -310,10 +344,31 @@ class MyBattle extends Polymer.Element {
 	getPokemonName(name){
 		return this._formatName(name);
 	}
+	getPokemon(id){
+		return (id == 1) ? this._formatName(this.pokemonO.name) :  this._formatName(this.pokemonT.name)  ;
+	}
 	_formatName(name) {
 		var str = name;
 		return `${str.toUpperCase()}`
       }
+	getButtonDamage(oEvent){
+		var name = oEvent.currentTarget.innerHTML;
+		var btnDamage = 0;
+		if(name === 'Ember'){
+			btnDamage = 70;
+		}
+		if(name === 'Quick Attack'){
+			btnDamage = 15;
+			
+		}
+		if(name === 'Lightning'){
+			btnDamage = 79;
+		}
+		if(name === 'Tackle'){
+			btnDamage = 25;
+		}
+		return [btnDamage, name];
+	  }
 }
 //Now, register your new custom element so the browser can use it
 customElements.define(MyBattle.is, MyBattle);
