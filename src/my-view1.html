@@ -70,6 +70,9 @@
     </div>
 	<div class="card">
 			[[theWinner]]
+			<template is="dom-if" if="[[theWinner]]">
+			<paper-button raised on-tap="restartBattle" id="battle1">Restart</paper-button>
+			</template>
 	</div>
     <template is="dom-if" if="[[categoryData]]">
         <div class="card">
@@ -145,7 +148,6 @@ class MyBattle extends Polymer.Element {
 
 	handleTResponse(data){
 		this.pokemonT = data.detail.response;
-		console.log(this.pokemonT);
 		this.health2 = this.pokemonO.stats[5].base_stat;
 	}
 	
@@ -214,6 +216,15 @@ class MyBattle extends Polymer.Element {
 		var damage = 0;
 		damage = ((((attack/50) + 5) * power * attack / defence) / 50) + 2;
 		return damage;
+	}
+	restartBattle(){
+		this.pokemonO = null;
+		this.pokemonT = null;
+		this.theWinner = null;
+		this.$.getPlayerOne.generateRequest(); 
+		this.$.getPlayerTwo.generateRequest(); 
+		this.$.battle1.disabled = false;
+		this.$.battle2.disabled = false;
 	}
 }
 //Now, register your new custom element so the browser can use it
