@@ -29,6 +29,9 @@
     h2, paper-item{
         text-transform: capitalize;
     }
+	h4{
+		text-transform: capitalize;
+	}
 	paper-button.primary{
 		color: #FFF;
 		background-color: [[authColor]];
@@ -40,7 +43,7 @@
 	
 	.po { float:left; margin-left: 5px; }
 	.pt  { position: relative; float:right }
-	.card { height: 160px; }
+	.card { height: 185px; }
     </style>
 
     <div class="card">
@@ -52,7 +55,7 @@
 		
 		<div class="po">
 			<template is="dom-repeat" items="[[pokemonO]]">
-				{{pokemonO.name}}<br/>
+				<h4>{{pokemonO.name}}</h4>
 				 <img src="{{pokemonO.sprites.front_default}}" alt=""><br/>
 				 [[damage1]]
 				 <paper-progress value="[[health1]]" max="[[actualHealth1]]"></paper-progress>
@@ -83,7 +86,7 @@
 			<paper-button raised on-tap="battle2" id="battle2">Lighting</paper-button>
 			<div class="pt">
 				<template is="dom-repeat" items="[[pokemonT]]">
-					{{pokemonT.name}}<br/>
+					<h4>{{pokemonT.name}}</h4>
 					 <img src="{{pokemonT.sprites.back_default}}" alt=""><br/>
 					 [[damage2]]
 					<paper-progress value="[[health2]]" max="[[actualHealth2]]"></paper-progress>
@@ -199,7 +202,7 @@ class MyBattle extends Polymer.Element {
 		this.myMessage = null;
 		this.damage1 = null;
 		var attack = this.pokemonO.stats[4].base_stat;
-		var level = 20;
+		var level = 17;
 		var power = 75;
 		var defence = this.pokemonT.stats[3].base_stat;
 		var mydamage1 =  0;
@@ -221,7 +224,7 @@ class MyBattle extends Polymer.Element {
 		this.myMessage = null;
 		this.damage2 = null;
 		var attack = this.pokemonT.stats[4].base_stat;
-		var level = 20;
+		var level = 16;
 		var power = 80;
 		var defence = this.pokemonO.stats[3].base_stat;
 		var mydamage2 = 0;
@@ -245,7 +248,13 @@ class MyBattle extends Polymer.Element {
 	}
 
 	calcWinner(value){
-		this.theWinner = 'The Winner Is: Player ' + value;  
+		var pokemonName = '';
+		if(value == 1){
+			pokemonName = this.pokemonO.name;
+		}else{
+			pokemonName = this.pokemonT.name;
+		}
+		this.theWinner = 'The Winner Is: ' + this.getPokemonName(pokemonName);  
 		this.$.battle1.disabled = true;
 		this.$.battle2.disabled = true;
 		this.damage1 = null;
@@ -269,8 +278,14 @@ class MyBattle extends Polymer.Element {
 	}
 	isHit(id){
 		var  roll =  Math.floor((Math.random() * 10) + 1);
-		if(roll > 7){
-			this.myMessage = 'Player ' + id + ' evaded the attack.';
+		var pokemonName = '';
+		if(id == 1){
+			pokemonName = this.pokemonO.name;
+		}else{
+			pokemonName = this.pokemonT.name;
+		}
+		if(roll > 8){
+			this.myMessage = this.getPokemonName(pokemonName )+ ' evaded the attack.';
 			if(id == 1){
 				this.$.battle1.disabled = false;
 				this.$.battle2.disabled = true;
@@ -292,6 +307,13 @@ class MyBattle extends Polymer.Element {
 		}
 		return false;
 	}
+	getPokemonName(name){
+		return this._formatName(name);
+	}
+	_formatName(name) {
+		var str = name;
+		return `${str.toUpperCase()}`
+      }
 }
 //Now, register your new custom element so the browser can use it
 customElements.define(MyBattle.is, MyBattle);
