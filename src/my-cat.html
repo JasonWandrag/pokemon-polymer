@@ -34,7 +34,21 @@
         <template is="dom-repeat" items="[[category]]">
             <paper-button raised on-tap="getCategory">{{item.name}}</paper-button>
         </template>
+        <!-- <template is="dom-if" items="[[next]]">
+            <paper-button raised on-tap="getCategory">{{category.item.name}}</paper-button>
+        </template>
+        <template is="dom-if" items="[[previous]]">
+            <paper-button raised on-tap="getCategory">{{category.item.name}}</paper-button>
+        </template> -->
+
+
     </div>
+
+    <template is="dom-if" if="{{loading}}">
+        <div class="spinner">
+            <paper-spinner active></paper-spinner>
+        </div>
+    </template>
 
 
     <template is="dom-if" if="[[categoryData]]">
@@ -87,6 +101,7 @@ class MyCat extends Polymer.Element {
     }
 
     getCategory(oEvent){
+        this.categoryData = null;
         this.catURL = oEvent.model.get('item.url');
         this.$.requestCat.generateRequest();
     }

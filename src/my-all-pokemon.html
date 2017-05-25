@@ -5,11 +5,12 @@
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="my-home">
+<dom-module id="my-all-pokemon">
     <!-- Defines the element's style and local DOM -->
     <template>
     <style include="shared-styles">
@@ -28,13 +29,23 @@
     h2, paper-item{
         text-transform: capitalize;
     }
+
+    .poke-icon{
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        border: 6px solid red;
+        margin-right: 30px;
+        background-color: #000;
+    }
+
     </style>
     <div class="card">
-        <paper-input label="Search Pokemon" value="{{poke::input}}">
-            <iron-icon icon="icons:search" slot="prefix"></iron-icon>
-        </paper-input>
-        <paper-button raised on-tap="getMyPoke" class="primary">Submit</paper-button>
-        <p>[[responseError]]</p>
+        <template is="dom-repeat" items="[[allPokemon]]">
+            <paper-button raised on-tap="getPokemon">
+                {{item.name}}
+            </paper-button>
+        </template>
     </div>
 
     <template is="dom-if" if="{{loading}}">
@@ -45,9 +56,22 @@
 
     <template is="dom-if" if="[[pokemon]]">
         <div class="card">
-            <h2>{{pokemon.name}}</h2>
-            <img src="{{pokemon.sprites.front_default}}" alt="">
-            <img src="{{pokemon.sprites.back_default}}" alt="">
+            <!-- <h2>{{pokemon.name}}</h2>
+            <div class="img-gallery">
+                <h3>Normal</h3>
+                <img src="{{pokemon.sprites.front_default}}" alt="" slot="prefix">
+                <img src="{{pokemon.sprites.back_default}}" alt="">
+            </div>
+            <div class="img-gallery">
+                <h3>Shiny</h3>
+                <img src="{{pokemon.sprites.front_shiny}}" alt="">
+                <img src="{{pokemon.sprites.back_shiny}}" alt="">
+            </div> -->
+
+            <paper-item>
+                <iron-image src="{{pokemon.sprites.front_default}}" sizing="cover" preload class="poke-icon"></iron-image>
+                <h2>{{pokemon.name}}</h2>
+            </paper-item>
         </div>
         <div class="card">
             <h4>Abilities:</h4>
@@ -61,47 +85,58 @@
                 <paper-item>{{item.type.name}}</paper-item>
             </template>
         </div>
-        <div class="card">
-            <h4>Moves:</h4>
-            <template is="dom-repeat" items="[[pokemon.moves]]">
-                <paper-item>{{item.move.name}}</paper-item>
-            </template>
-        </div>
+
     </template>
 
-
     <iron-ajax
-    id="requestPokes"
-    url="http://pokeapi.co/api/v2/pokemon/{{poke}}"
+    auto
+    url="http://pokeapi.co/api/v2/pokemon/"
     handle-as="json"
+    params='{"limit" : "20"}'
     method="GET"
     loading="{{loading}}"
     on-response="handleResponse"
     on-error="handleErrorResponse"
     debounce-duration="300"></iron-ajax>
+
+    <iron-ajax
+    id="requestPoke"
+    url="{{pokemonURL}}"
+    handle-as="json"
+    method="GET"
+    loading="{{loading}}"
+    on-response="handlePokeResponse"
+    on-error="handleErrorResponse"
+    debounce-duration="300"></iron-ajax>
 </template>
 <script>
 // Your new element extends the Polymer.Element base class
-class MyHome extends Polymer.Element {
-    static get is() { return 'my-home'; }
+class MyAllPokemon extends Polymer.Element {
+    static get is() { return 'my-all-pokemon'; }
     static get properties() {
         return{
-            pokemon : Array
+            allPokemon : Array,
+            pokemon : Array,
+            pokemonURL : String
         }
     }
-    getMyPoke(){
-        this.pokemon = null;
-        this.$.requestPokes.generateRequest();
-        this.responseError = "";
-    }
+
     handleResponse(data){
+        this.allPokemon = data.detail.response.results;
+    }
+
+    handlePokeResponse(data){
         this.pokemon = data.detail.response;
     }
-    handleErrorResponse(event){
-        this.responseError = "There is no such Pokemon, please check your spelling and try again.";
+
+    getPokemon(oEvent){
+        this.pokemon = null;
+        this.pokemonURL = oEvent.model.get('item.url');
+        this.$.requestPoke.generateRequest();
     }
+
 }
 //Now, register your new custom element so the browser can use it
-customElements.define(MyHome.is, MyHome);
+customElements.define(MyAllPokemon.is, MyAllPokemon);
 </script>
 </dom-module>
