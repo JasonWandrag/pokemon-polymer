@@ -39,7 +39,7 @@
 			<template is="dom-repeat" items="[[pokemonO]]">
 				{{pokemonO.name}}<br/>
 				 <img src="{{pokemonO.sprites.front_default}}" alt=""><br/>
-				 [[damage]]
+				 [[damage1]]
 				 <paper-progress value="[[health1]]"></paper-progress>
 			</template>
 		</div>
@@ -56,14 +56,14 @@
     </div>
 	<div class="card">
 			<paper-button raised on-tap="battle2" id="battle2">Growl</paper-button>
-			<paper-button raised on-tap="battle2" id="battle2">Tackle</paper-button>
+			<paper-button raised on-tap="battle2" id="battle2">Tackle</paper-button><br/>
 			<paper-button raised on-tap="battle2" id="battle2">Quick Attack</paper-button>
 			<paper-button raised on-tap="battle2" id="battle2">Lighting</paper-button>
 		<div class="pt">
 			<template is="dom-repeat" items="[[pokemonT]]">
 				{{pokemonT.name}}<br/>
 				 <img src="{{pokemonT.sprites.back_default}}" alt=""><br/>
-				 [[damage]]
+				 [[damage2]]
 				<paper-progress value="[[health2]]"></paper-progress>
 			</template>
 		</div>
@@ -80,7 +80,7 @@
     </template>
 
     <iron-ajax
-    auto
+    id="getPlayerOne"
     url="http://pokeapi.co/api/v2/pokemon/charmander"
     handle-as="json"
     method="GET"
@@ -90,7 +90,7 @@
     debounce-duration="300"></iron-ajax>
 
 	<iron-ajax
-	auto
+	id="getPlayerTwo"
     url="http://pokeapi.co/api/v2/pokemon/pikachu"
     handle-as="json"
     method="GET"
@@ -129,13 +129,15 @@ class MyBattle extends Polymer.Element {
 		level:   String,
 		power:   String,
 		defence:   String,
-		damage: String,
+		damage1: String,
+		damage2: String,
         }
     }
-	<!-- ready(){ -->
-		<!-- this.$.listpokeo.generateRequest(); -->
-		<!-- this.$.listpoket.generateRequest(); -->
-	<!-- } -->
+	ready(){ 
+		super.ready();
+		this.$.getPlayerOne.generateRequest(); 
+		this.$.getPlayerTwo.generateRequest(); 
+	 }
 	handleOResponse(data){
 		this.pokemonO = data.detail.response;
 		this.health1 = this.pokemonO.stats[5].base_stat;
@@ -158,17 +160,17 @@ class MyBattle extends Polymer.Element {
 	battle1() {
 		var attack = this.pokemonO.stats[4].base_stat;
 		var level = 20;
-		var power = 80;
+		var power = 60;
 		var defence = this.pokemonT.stats[3].base_stat;
-		var mydamage = 0;
-		mydamage = this.calcDamage(attack, level, power, defence);
+		var mydamage1 =  0;
+		mydamage1 = this.calcDamage(attack, level, power, defence);
 		
 		if (!this.hasHealth(this.health2)) {	
 			if (this.checkHealth(this.health2)) {
-				this.health2 = this.health2 - mydamage;
+				this.health2 = this.health2 - mydamage1;
 				this.$.battle1.disabled = true;
 				this.$.battle2.disabled = false;
-				this.damage = damage;
+				this.damage1 = mydamage1;
 			}
 		} else {
 			this.calcWinner(1);
@@ -179,14 +181,14 @@ class MyBattle extends Polymer.Element {
 		var level = 20;
 		var power = 80;
 		var defence = this.pokemonO.stats[3].base_stat;
-		var mydamage = 0;
-		mydamage = this.calcDamage(attack, level, power, defence);
+		var mydamage2 = 0;
+		mydamage2 = this.calcDamage(attack, level, power, defence);
 		if (!this.hasHealth(this.health1)) {		
 			if (this.checkHealth(this.health1)) {
-				this.health1 = this.health1 - mydamage;
+				this.health1 = this.health1 - mydamage2;
 				this.$.battle1.disabled = false;
 				this.$.battle2.disabled = true;
-				this.damage = damage;
+				this.damage2 = mydamage2;
 			}
 		} else {
 			this.calcWinner(2);
