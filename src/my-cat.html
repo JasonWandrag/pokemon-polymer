@@ -31,10 +31,24 @@
     </style>
 
     <div class="card">
-        <template is="dom-repeat" items="[[category]]">
-            <paper-button raised on-tap="getCategory">{{item.name}}</paper-button>
+        <template is="dom-repeat" items="[[results]]">
+            <paper-button raised on-tap="getCategory">{{category.item.name}}</paper-button>
         </template>
+        <template is="dom-if" items="[[next]]">
+            <paper-button raised on-tap="getCategory">{{category.item.name}}</paper-button>
+        </template>
+        <template is="dom-if" items="[[previous]]">
+            <paper-button raised on-tap="getCategory">{{category.item.name}}</paper-button>
+        </template>
+
+
     </div>
+
+    <template is="dom-if" if="{{loading}}">
+        <div class="spinner">
+            <paper-spinner active></paper-spinner>
+        </div>
+    </template>
 
 
     <template is="dom-if" if="[[categoryData]]">
@@ -79,7 +93,7 @@ class MyCat extends Polymer.Element {
     }
 
     handleResponse(data){
-        this.category = data.detail.response.results;
+        this.category = data.detail.response;
     }
 
     handleCatResponse(data){
@@ -87,6 +101,7 @@ class MyCat extends Polymer.Element {
     }
 
     getCategory(oEvent){
+        this.categoryData = null;
         this.catURL = oEvent.model.get('item.url');
         this.$.requestCat.generateRequest();
     }
