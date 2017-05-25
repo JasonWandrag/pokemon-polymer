@@ -44,9 +44,9 @@
 			</template>
 		</div>
 		<div class="por">
-			<paper-button raised on-tap="battle1" id="battle1">Growl</paper-button>
+			<!--<paper-button raised on-tap="battle1" id="battle1">Growl</paper-button>
 			<paper-button raised on-tap="battle1" id="battle1">Tackle</paper-button>
-			<paper-button raised on-tap="battle1" id="battle1">Quick Attack</paper-button>
+			<paper-button raised on-tap="battle1" id="battle1">Quick Attack</paper-button>-->
 			<paper-button raised on-tap="battle1" id="battle1">Ember</paper-button>
 			<!--<template is="dom-repeat" items="[[pokemonO.moves]]">
 				{{item.move.name}} &nbsp;
@@ -55,9 +55,9 @@
 		</div>
     </div>
 	<div class="card">
-			<paper-button raised on-tap="battle2" id="battle2">Growl</paper-button>
+			<!--<paper-button raised on-tap="battle2" id="battle2">Growl</paper-button>
 			<paper-button raised on-tap="battle2" id="battle2">Tackle</paper-button><br/>
-			<paper-button raised on-tap="battle2" id="battle2">Quick Attack</paper-button>
+			<paper-button raised on-tap="battle2" id="battle2">Quick Attack</paper-button>-->
 			<paper-button raised on-tap="battle2" id="battle2">Lighting</paper-button>
 		<div class="pt">
 			<template is="dom-repeat" items="[[pokemonT]]">
@@ -145,6 +145,7 @@ class MyBattle extends Polymer.Element {
 
 	handleTResponse(data){
 		this.pokemonT = data.detail.response;
+		console.log(this.pokemonT);
 		this.health2 = this.pokemonO.stats[5].base_stat;
 	}
 	
@@ -158,44 +159,46 @@ class MyBattle extends Polymer.Element {
     }
 	
 	battle1() {
+		this.damage1 = null;
 		var attack = this.pokemonO.stats[4].base_stat;
 		var level = 20;
-		var power = 60;
+		var power = 75;
 		var defence = this.pokemonT.stats[3].base_stat;
 		var mydamage1 =  0;
 		mydamage1 = this.calcDamage(attack, level, power, defence);
 		
-		if (!this.hasHealth(this.health2)) {	
-			if (this.checkHealth(this.health2)) {
-				this.health2 = this.health2 - mydamage1;
-				this.$.battle1.disabled = true;
-				this.$.battle2.disabled = false;
-				this.damage1 = mydamage1;
-			}
+		if (this.checkHealth(this.health2, mydamage1)) {
+			this.health2 = this.health2 - mydamage1;
+			this.$.battle1.disabled = true;
+			this.$.battle2.disabled = false;
+			this.damage2 = '(Damage - ' + parseInt(mydamage1) + ')';
 		} else {
+			this.health2 = this.health2 - mydamage1;
 			this.calcWinner(1);
 		}
 	}
 	battle2() {
+		this.damage2 = null;
 		var attack = this.pokemonT.stats[4].base_stat;
 		var level = 20;
 		var power = 80;
 		var defence = this.pokemonO.stats[3].base_stat;
 		var mydamage2 = 0;
 		mydamage2 = this.calcDamage(attack, level, power, defence);
-		if (!this.hasHealth(this.health1)) {		
-			if (this.checkHealth(this.health1)) {
-				this.health1 = this.health1 - mydamage2;
-				this.$.battle1.disabled = false;
-				this.$.battle2.disabled = true;
-				this.damage2 = mydamage2;
-			}
+		
+		if (this.checkHealth(this.health1, mydamage2)) {
+			this.health1 = this.health1 - mydamage2;
+			this.$.battle1.disabled = false;
+			this.$.battle2.disabled = true;
+			this.damage1 = '(Damage - ' + parseInt(mydamage2) + ')';
 		} else {
+			this.health1 = this.health1 - mydamage2;
 			this.calcWinner(2);
 		}
 	}
-	checkHealth(value){
-		return (value > 0);
+	checkHealth(value, value2){
+		var newvalue = value - value2;
+		return (newvalue > 0);
 	}
 	hasHealth(value){
 		return (value <= 0);
@@ -204,6 +207,8 @@ class MyBattle extends Polymer.Element {
 		this.theWinner = 'The Winner Is: Player ' + value;  
 		this.$.battle1.disabled = true;
 		this.$.battle2.disabled = true;
+		this.damage1 = null;
+		this.damage2 = null;
 	}
 	calcDamage(attack, level, power, defence){
 		var damage = 0;
