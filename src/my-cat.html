@@ -31,15 +31,15 @@
     </style>
 
     <div class="card">
-        <template is="dom-repeat" items="[[results]]">
-            <paper-button raised on-tap="getCategory">{{category.item.name}}</paper-button>
+        <template is="dom-repeat" items="[[category]]">
+            <paper-button raised on-tap="getCategory">{{item.name}}</paper-button>
         </template>
-        <template is="dom-if" items="[[next]]">
+        <!-- <template is="dom-if" items="[[next]]">
             <paper-button raised on-tap="getCategory">{{category.item.name}}</paper-button>
         </template>
         <template is="dom-if" items="[[previous]]">
             <paper-button raised on-tap="getCategory">{{category.item.name}}</paper-button>
-        </template>
+        </template> -->
 
 
     </div>
@@ -93,7 +93,7 @@ class MyCat extends Polymer.Element {
     }
 
     handleResponse(data){
-        this.category = data.detail.response;
+        this.category = data.detail.response.results;
     }
 
     handleCatResponse(data){

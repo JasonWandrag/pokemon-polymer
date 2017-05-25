@@ -1,39 +1,178 @@
-<!--
-@license
-Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
--->
-
+<!-- Load the Polymer.Element base class -->
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="my-view1">
-  <template>
+<dom-module id="my-battle">
+    <!-- Defines the element's style and local DOM -->
+    <template>
     <style include="shared-styles">
-      :host {
+    :host {
         display: block;
-
-        padding: 10px;
-      }
+        padding: 16px;
+    }
+    .spinner{
+        text-align: center;
+    }
+    paper-spinner{
+        width: 50px;
+        height: 50px;
+        padding: 3%;
+    }
+    h2, paper-item{
+        text-transform: capitalize;
+    }
+	.po { float:left; margin-left: 5px; }
+	.pt  { position: relative; float:right }
+	.card { height: 160px; }
     </style>
 
     <div class="card">
-      <div class="circle">1</div>
-      <h1>View One</h1>
-      <p>Ut labores minimum atomorum pro. Laudem tibique ut has.</p>
-      <p>Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Lorem ipsum dolor sit amet, per in nusquam nominavi periculis, sit elit oportere ea.Cu mei vide viris gloriatur, at populo eripuit sit.</p>
+		<div class="po">
+			<template is="dom-repeat" items="[[pokemonO]]">
+				{{pokemonO.name}}<br/>
+				 <img src="{{pokemonO.sprites.front_default}}" alt=""><br/>
+				 <paper-progress value="[[health1]]"></paper-progress>
+			</template>
+		</div>
+		<div class="por">
+			<paper-button raised on-tap="battle1" id="battle1">battle</paper-button>
+			<!--<template is="dom-repeat" items="[[pokemonO.moves]]">
+				{{item.move.name}} &nbsp;
+			</template>
+			-->
+		</div>
     </div>
-  </template>
+	<div class="card">
+			<paper-button raised on-tap="battle2" id="battle2">battle</paper-button>
+		<div class="pt">
+			<template is="dom-repeat" items="[[pokemonT]]">
+				{{pokemonT.name}}<br/>
+				 <img src="{{pokemonT.sprites.back_default}}" alt=""><br/>
+				<paper-progress value="[[health2]]"></paper-progress>
+			</template>
+		</div>
+    </div>
+	<div class="card">
+			[[theWinner]]
+	</div>
+    <template is="dom-if" if="[[categoryData]]">
+        <div class="card">
+            <template is="dom-repeat" items="[[categoryData]]">
+                <paper-item>{{item.pokemon.name}}</paper-item>
+            </template>
+        </div>
+    </template>
 
-  <script>
-    class MyView1 extends Polymer.Element {
-      static get is() { return 'my-view1'; }
+    <iron-ajax
+    auto
+    url="http://pokeapi.co/api/v2/pokemon/charmander"
+    handle-as="json"
+    method="GET"
+    loading="{{loading}}"
+    on-response="handleOResponse"
+    on-error="handleOErrorResponse"
+    debounce-duration="300"></iron-ajax>
+
+	<iron-ajax
+    auto
+    url="http://pokeapi.co/api/v2/pokemon/pikachu"
+    handle-as="json"
+    method="GET"
+    loading="{{loading}}"
+    on-response="handleTResponse"
+    on-error="handleTErrorResponse"
+    debounce-duration="300"></iron-ajax>
+	
+    <iron-ajax
+    id="requestCat"
+    url="{{catURL}}"
+    handle-as="json"
+    method="GET"
+    loading="{{loading}}"
+    on-response="handleCatResponse"
+    on-error="handleErrorResponse"
+    debounce-duration="300"></iron-ajax>
+	
+</template>
+</template>
+<script>
+// Your new element extends the Polymer.Element base class
+class MyBattle extends Polymer.Element {
+    static get is() { return 'my-battle'; }
+    static get properties() {
+        return{
+            pokemonO : Array,
+            pokemonT : Array,
+            catURL : String,
+            categoryData : Array,
+		health1:  { type: String },
+		health2:  { type: String },
+		theWinner:   String,
+        }
+    }
+	
+    handleOResponse(data){
+        this.pokemonO = data.detail.response;
+	  this.health1 = this.pokemonO.stats[5].base_stat;
     }
 
-    window.customElements.define(MyView1.is, MyView1);
-  </script>
+	handleTResponse(data){
+        this.pokemonT = data.detail.response;
+	  this.health2 = this.pokemonO.stats[5].base_stat;
+    }
+	
+    handleCatResponse(data){
+        this.categoryData = data.detail.response.pokemon;
+    }
+
+    getCategory(oEvent){
+        this.catURL = oEvent.model.get('item.url');
+        this.$.requestCat.generateRequest();
+    }
+	
+	battle1() {
+		if (!this.hasHealth(this.health2)) {	
+			if (this.checkHealth(this.health2)) {
+				this.health2 = this.health2 - 15;
+				this.$.battle1.disabled = true;
+				this.$.battle2.disabled = false;
+			}
+		} else {
+			this.calcWinner(1);
+		}
+	}
+	battle2() {
+		if (!this.hasHealth(this.health1)) {		
+			if (this.checkHealth(this.health1)) {
+				this.health1 = this.health1 - 15;
+				this.$.battle1.disabled = false;
+				this.$.battle2.disabled = true;
+			}
+		} else {
+			this.calcWinner(2);
+		}
+	}
+	checkHealth(value){
+		return (value > 0);
+	}
+	hasHealth(value){
+		return (value <= 0);
+	}
+	calcWinner(value){
+		this.theWinner = 'The Winner Is: Player ' + value;  
+		this.$.battle1.disabled = true;
+		this.$.battle2.disabled = true;
+	}
+}
+//Now, register your new custom element so the browser can use it
+customElements.define(MyBattle.is, MyBattle);
+</script>
 </dom-module>
