@@ -39,11 +39,15 @@
 			<template is="dom-repeat" items="[[pokemonO]]">
 				{{pokemonO.name}}<br/>
 				 <img src="{{pokemonO.sprites.front_default}}" alt=""><br/>
+				 [[damage]]
 				 <paper-progress value="[[health1]]"></paper-progress>
 			</template>
 		</div>
 		<div class="por">
-			<paper-button raised on-tap="battle1" id="battle1">battle</paper-button>
+			<paper-button raised on-tap="battle1" id="battle1">Growl</paper-button>
+			<paper-button raised on-tap="battle1" id="battle1">Tackle</paper-button>
+			<paper-button raised on-tap="battle1" id="battle1">Quick Attack</paper-button>
+			<paper-button raised on-tap="battle1" id="battle1">Ember</paper-button>
 			<!--<template is="dom-repeat" items="[[pokemonO.moves]]">
 				{{item.move.name}} &nbsp;
 			</template>
@@ -51,11 +55,15 @@
 		</div>
     </div>
 	<div class="card">
-			<paper-button raised on-tap="battle2" id="battle2">battle</paper-button>
+			<paper-button raised on-tap="battle2" id="battle2">Growl</paper-button>
+			<paper-button raised on-tap="battle2" id="battle2">Tackle</paper-button>
+			<paper-button raised on-tap="battle2" id="battle2">Quick Attack</paper-button>
+			<paper-button raised on-tap="battle2" id="battle2">Lighting</paper-button>
 		<div class="pt">
 			<template is="dom-repeat" items="[[pokemonT]]">
 				{{pokemonT.name}}<br/>
 				 <img src="{{pokemonT.sprites.back_default}}" alt=""><br/>
+				 [[damage]]
 				<paper-progress value="[[health2]]"></paper-progress>
 			</template>
 		</div>
@@ -82,7 +90,7 @@
     debounce-duration="300"></iron-ajax>
 
 	<iron-ajax
-    auto
+	auto
     url="http://pokeapi.co/api/v2/pokemon/pikachu"
     handle-as="json"
     method="GET"
@@ -116,22 +124,31 @@ class MyBattle extends Polymer.Element {
 		health1:  { type: String },
 		health2:  { type: String },
 		theWinner:   String,
+		
+		attack:   String,
+		level:   String,
+		power:   String,
+		defence:   String,
+		damage: String,
         }
     }
-	
-    handleOResponse(data){
-        this.pokemonO = data.detail.response;
-	  this.health1 = this.pokemonO.stats[5].base_stat;
-    }
+	<!-- ready(){ -->
+		<!-- this.$.listpokeo.generateRequest(); -->
+		<!-- this.$.listpoket.generateRequest(); -->
+	<!-- } -->
+	handleOResponse(data){
+		this.pokemonO = data.detail.response;
+		this.health1 = this.pokemonO.stats[5].base_stat;
+	}
 
 	handleTResponse(data){
-        this.pokemonT = data.detail.response;
-	  this.health2 = this.pokemonO.stats[5].base_stat;
-    }
+		this.pokemonT = data.detail.response;
+		this.health2 = this.pokemonO.stats[5].base_stat;
+	}
 	
-    handleCatResponse(data){
-        this.categoryData = data.detail.response.pokemon;
-    }
+	handleCatResponse(data){
+		this.categoryData = data.detail.response.pokemon;
+	}
 
     getCategory(oEvent){
         this.catURL = oEvent.model.get('item.url');
@@ -139,22 +156,37 @@ class MyBattle extends Polymer.Element {
     }
 	
 	battle1() {
+		var attack = this.pokemonO.stats[4].base_stat;
+		var level = 20;
+		var power = 80;
+		var defence = this.pokemonT.stats[3].base_stat;
+		var mydamage = 0;
+		mydamage = this.calcDamage(attack, level, power, defence);
+		
 		if (!this.hasHealth(this.health2)) {	
 			if (this.checkHealth(this.health2)) {
-				this.health2 = this.health2 - 15;
+				this.health2 = this.health2 - mydamage;
 				this.$.battle1.disabled = true;
 				this.$.battle2.disabled = false;
+				this.damage = damage;
 			}
 		} else {
 			this.calcWinner(1);
 		}
 	}
 	battle2() {
+		var attack = this.pokemonT.stats[4].base_stat;
+		var level = 20;
+		var power = 80;
+		var defence = this.pokemonO.stats[3].base_stat;
+		var mydamage = 0;
+		mydamage = this.calcDamage(attack, level, power, defence);
 		if (!this.hasHealth(this.health1)) {		
 			if (this.checkHealth(this.health1)) {
-				this.health1 = this.health1 - 15;
+				this.health1 = this.health1 - mydamage;
 				this.$.battle1.disabled = false;
 				this.$.battle2.disabled = true;
+				this.damage = damage;
 			}
 		} else {
 			this.calcWinner(2);
@@ -170,6 +202,11 @@ class MyBattle extends Polymer.Element {
 		this.theWinner = 'The Winner Is: Player ' + value;  
 		this.$.battle1.disabled = true;
 		this.$.battle2.disabled = true;
+	}
+	calcDamage(attack, level, power, defence){
+		var damage = 0;
+		damage = ((((attack/50) + 5) * power * attack / defence) / 50) + 2;
+		return damage;
 	}
 }
 //Now, register your new custom element so the browser can use it
