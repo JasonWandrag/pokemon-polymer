@@ -9,7 +9,7 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="shared-styles.html">
 
-<dom-module id="my-home">
+<dom-module id="my-cat">
     <!-- Defines the element's style and local DOM -->
     <template>
     <style include="shared-styles">
@@ -29,72 +29,69 @@
         text-transform: capitalize;
     }
     </style>
+
     <div class="card">
-        <paper-input label="Search Pokemon" value="{{poke::input}}">
-            <iron-icon icon="icons:search" slot="prefix"></iron-icon>
-        </paper-input>
-        <paper-button raised on-tap="getMyPoke" class="primary">Submit</paper-button>
-        <p>[[responseError]]</p>
+        <template is="dom-repeat" items="[[category]]">
+            <paper-button raised on-tap="getCategory">{{item.name}}</paper-button>
+        </template>
     </div>
 
-    <template is="dom-if" if="{{loading}}">
-        <div class="spinner">
-            <paper-spinner active></paper-spinner>
-        </div>
-    </template>
 
-    <template is="dom-if" if="[[pokemon]]">
+    <template is="dom-if" if="[[categoryData]]">
         <div class="card">
-            <h2>{{pokemon.name}}</h2>
-            <img src="{{pokemon.sprites.front_default}}" alt="">
-        </div>
-        <div class="card">
-            <h4>Abilities:</h4>
-            <template is="dom-repeat" items="[[pokemon.abilities]]">
-                <paper-item>{{item.ability.name}}</paper-item>
-            </template>
-        </div>
-        <div class="card">
-            <h4>Type:</h4>
-            <template is="dom-repeat" items="[[pokemon.types]]">
-                <paper-item>{{item.type.name}}</paper-item>
+            <template is="dom-repeat" items="[[categoryData]]">
+                <paper-item>{{item.pokemon.name}}</paper-item>
             </template>
         </div>
     </template>
-
 
     <iron-ajax
-    id="requestPokes"
-    url="http://pokeapi.co/api/v2/pokemon/{{poke}}"
+    auto
+    url="http://pokeapi.co/api/v2/type/"
     handle-as="json"
     method="GET"
     loading="{{loading}}"
     on-response="handleResponse"
     on-error="handleErrorResponse"
     debounce-duration="300"></iron-ajax>
+
+    <iron-ajax
+    id="requestCat"
+    url="{{catURL}}"
+    handle-as="json"
+    method="GET"
+    loading="{{loading}}"
+    on-response="handleCatResponse"
+    on-error="handleErrorResponse"
+    debounce-duration="300"></iron-ajax>
+</template>
 </template>
 <script>
 // Your new element extends the Polymer.Element base class
-class MyHome extends Polymer.Element {
-    static get is() { return 'my-home'; }
+class MyCat extends Polymer.Element {
+    static get is() { return 'my-cat'; }
     static get properties() {
         return{
-            pokemon : Array
+            category : Array,
+            catURL : String,
+            categoryData : Array
         }
     }
-    getMyPoke(){
-        this.pokemon = null;
-        this.$.requestPokes.generateRequest();
-        this.responseError = "";
-    }
+
     handleResponse(data){
-        this.pokemon = data.detail.response;
+        this.category = data.detail.response.results;
     }
-    handleErrorResponse(event){
-        this.responseError = "There is no such Pokemon, please check your spelling and try again.";
+
+    handleCatResponse(data){
+        this.categoryData = data.detail.response.pokemon;
+    }
+
+    getCategory(oEvent){
+        this.catURL = oEvent.model.get('item.url');
+        this.$.requestCat.generateRequest();
     }
 }
 //Now, register your new custom element so the browser can use it
-customElements.define(MyHome.is, MyHome);
+customElements.define(MyCat.is, MyCat);
 </script>
 </dom-module>
