@@ -46,7 +46,7 @@
 				{{pokemonO.name}}<br/>
 				 <img src="{{pokemonO.sprites.front_default}}" alt=""><br/>
 				 [[damage1]]
-				 <paper-progress value="[[health1]]"></paper-progress>
+				 <paper-progress value="[[health1]]" max="[[actualHealth1]]"></paper-progress>
 			</template>
 		</div>
 		<div class="por">
@@ -77,7 +77,7 @@
 					{{pokemonT.name}}<br/>
 					 <img src="{{pokemonT.sprites.back_default}}" alt=""><br/>
 					 [[damage2]]
-					<paper-progress value="[[health2]]"></paper-progress>
+					<paper-progress value="[[health2]]" max="[[actualHealth2]]"></paper-progress>
 				</template>
 			</div>
 		
@@ -141,6 +141,8 @@ class MyBattle extends Polymer.Element {
             pokemonT : Array,
             catURL : String,
             categoryData : Array,
+		actualHealth1:  { type: String },
+		actualHealth2:  { type: String },
 		health1:  { type: String },
 		health2:  { type: String },
 		theWinner:   String,
@@ -162,11 +164,13 @@ class MyBattle extends Polymer.Element {
 	handleOResponse(data){
 		this.pokemonO = data.detail.response;
 		this.health1 = this.pokemonO.stats[5].base_stat;
+		this.actualHealth1 = this.pokemonO.stats[5].base_stat;
 	}
 
 	handleTResponse(data){
 		this.pokemonT = data.detail.response;
 		this.health2 = this.pokemonO.stats[5].base_stat;
+		this.actualHealth2 = this.pokemonO.stats[5].base_stat;
 	}
 	
 	handleCatResponse(data){
