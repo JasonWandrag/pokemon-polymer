@@ -29,6 +29,15 @@
     h2, paper-item{
         text-transform: capitalize;
     }
+	paper-button.primary{
+		color: #FFF;
+		background-color: [[authColor]];
+	}
+	
+	paper-button.primary:hover {
+		background-color: #3498DB;
+	}
+	
 	.po { float:left; margin-left: 5px; }
 	.pt  { position: relative; float:right }
 	.card { height: 160px; }
@@ -87,8 +96,8 @@
 			[[myMessage]]
 			</template>
 			<template is="dom-if" if="[[theWinner]]">
-				[[theWinner]]
-			<paper-button raised on-tap="restartBattle">Restart</paper-button>
+				[[theWinner]] <br/>
+			<paper-button raised on-tap="restartBattle" class="primary">Restart</paper-button>
 			</template>
 	</div>
     <template is="dom-if" if="[[categoryData]]">
@@ -145,6 +154,10 @@ class MyBattle extends Polymer.Element {
 		actualHealth2:  { type: String },
 		health1:  { type: String },
 		health2:  { type: String },
+		authColor: {
+			type: String,
+			value: '#2874A6'
+		  },
 		theWinner:   String,
 		myMessage:   String,
 		
